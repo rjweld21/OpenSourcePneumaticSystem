@@ -107,6 +107,7 @@ class PumpGUI(QWidget):
         # Create radio buttons
         for name in buttonNames:
             self.buttons.append(QRadioButton(name))
+            self.buttons[-1].toggled.connect(self.changeMode)
             hbox.addWidget(self.buttons[-1])
             
         self.buttons[0].setChecked(True)
@@ -130,6 +131,17 @@ class PumpGUI(QWidget):
         groupBox.setLayout(vbox)
         
         return groupBox, label
+    
+    def changeMode(self):
+        name = None
+        for b in self.buttons:
+            if b.isChecked():
+                name = b.text()
+                break
+                
+        self.pump.updateMode(name)
+        
+        self.sendSerialData()
         
     def updateSDAC(self):
         start = self.sliderSDAC.value()
@@ -139,7 +151,9 @@ class PumpGUI(QWidget):
         if start > self.sliderEDAC.value():
             self.sliderEDAC.setValue(start+self.intEDAC)
         
-        # self.pump.updateParams(start=start)
+        self.pump.updateParams(start=start)
+        
+        self.sendSerialData()
         
     def updateEDAC(self):
         end = self.sliderEDAC.value()
@@ -149,14 +163,18 @@ class PumpGUI(QWidget):
         if end < self.sliderSDAC.value():
             self.sliderSDAC.setValue(end+self.intSDAC)
             
-        # self.pump.updateParams(end=end)
+        self.pump.updateParams(end=end)
+        
+        self.sendSerialData()
 
     def updateMS(self):
         ms = self.sliderMS.value()
         
         self.labelMS.setText(str(ms))
         
-        # self.pump.updateParams(ms=ms)
+        self.pump.updateParams(ms=ms)
+        
+        self.sendSerialData()
         
     def incrementSDAC(self):
         self.sliderSDAC.setValue(self.sliderSDAC.value() + self.intSDAC)
@@ -175,6 +193,17 @@ class PumpGUI(QWidget):
         
     def decrementMS(self):
         self.sliderMS.setValue(self.sliderMS.value() - self.intMS)
+        
+    def sendSerialData(self):
+        data = self.pump.getSerialData()
+        bounds = data.split(',')[2:4] if len(data.split(',')) > 3 else [0, 1]
+        if int(bounds[0]) < int(bounds[1]):
+            print(data)
+        else:
+            print('FAIL:', data)
+            
+    def readSerialPort(self):
+        
         
 if __name__ == '__main__':
     app = QApplication(sys.argv)

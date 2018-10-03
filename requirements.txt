@@ -1,0 +1,3 @@
+pyqt5==5.11.2
+pyqt5-sim==4.19.12
+pyqtgraph==0.10.0

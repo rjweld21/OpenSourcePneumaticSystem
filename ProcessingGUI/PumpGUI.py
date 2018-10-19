@@ -9,11 +9,14 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
                             QHBoxLayout, QWidget, QSlider, QLabel,
                             QShortcut)
 
+from control.ArduinoSerial import SerialArduino, connectVirtualComs
 
 class PumpGUI(QWidget):
     def __init__(self, parent=None):
+        os.system('start powershell')
         super(PumpGUI, self).__init__(parent)
         self.pump = PumpControl()
+        self.initSerial()
         
         # Create grid for main screen
         grid = QGridLayout()
@@ -194,20 +197,39 @@ class PumpGUI(QWidget):
     def decrementMS(self):
         self.sliderMS.setValue(self.sliderMS.value() - self.intMS)
         
+    def initSerial(self):
+        try:
+            ardCom = 'COM7'
+            SA = SerialArduino(port='COM7')
+            
+        except Exception as e:
+            print('No arduino detected on %s' % ardCom)
+            print('Reverting to virtual COM ports for testing...')
+            
+            [SA, _] = connectVirtualComs(timeout=5)
+            
+        sleep(1)
+        self.SA = SA
+        print('COM connection initialized!')
+        
     def sendSerialData(self):
         data = self.pump.getSerialData()
         bounds = data.split(',')[2:4] if len(data.split(',')) > 3 else [0, 1]
         if int(bounds[0]) < int(bounds[1]):
             print(data)
+            self.SA.write_buffer(str(data))
         else:
             print('FAIL:', data)
             
     def readSerialPort(self):
-        
+        pass
         
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(os.path.join('content', 'icon.png')))
-    gui = PumpGUI()
-    gui.show()
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        app.setWindowIcon(QIcon(os.path.join('content', 'icon.png')))
+        gui = PumpGUI()
+        gui.show()
+        sys.exit(app.exec_())
+    except Exception as e:
+        print(e)

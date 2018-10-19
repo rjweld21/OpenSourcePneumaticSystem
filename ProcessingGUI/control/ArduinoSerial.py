@@ -2,10 +2,11 @@ import serial
 from time import sleep
 
 class SerialArduino(object):
-    def __init__(self, port='COM7', br=9600, timeout=0):
+    def __init__(self, port='COM7', br=9600, timeout=0, virtual=0):
         self.SA = serial.Serial(port, br, timeout=timeout)
         self.old = b''
         self.data = b''
+        self.virtual = virtual
         
     def write_buffer(self, data):
         if type(data) == str:
@@ -18,7 +19,9 @@ class SerialArduino(object):
             print('No data written to serial.')
             return
             
+        print('Writing...')
         self.SA.write(data)
+        print('Written!')
 
     def read_buffer(self, byteLen=0, parse=True):
         if not byteLen:
@@ -41,13 +44,17 @@ class SerialArduino(object):
     def bufferSize(self):
         return self.SA.in_waiting
         
+    def close(self):
+        self.SA.close()
+        del self.SA
+        
 def connectVirtualComs(ports=['\\\\.\\CNCA0',
                                 '\\\\.\\CNCB0'],
                         br=38400, timeout=0):
     ser = []
     
     for p in ports:
-        ser.append(SerialArduino(p, br, timeout))
+        ser.append(SerialArduino(p, br, timeout, 1))
         
     return ser
     

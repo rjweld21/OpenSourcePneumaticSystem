@@ -3,7 +3,7 @@ from time import sleep
 
 class SerialArduino(object):
     def __init__(self, port='COM7', br=9600, timeout=0, virtual=0):
-        self.SA = serial.Serial(port, br, timeout=timeout)
+        self.SA = serial.Serial(port, br, timeout=timeout, rtscts=0)
         self.old = b''
         self.data = b''
         self.virtual = virtual

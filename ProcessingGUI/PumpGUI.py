@@ -13,7 +13,7 @@ from control.ArduinoSerial import SerialArduino, connectVirtualComs
 
 class PumpGUI(QWidget):
     def __init__(self, parent=None):
-        os.system('start powershell')
+        #os.system('start powershell')
         super(PumpGUI, self).__init__(parent)
         self.pump = PumpControl()
         self.initSerial()
@@ -216,13 +216,16 @@ class PumpGUI(QWidget):
         data = self.pump.getSerialData()
         bounds = data.split(',')[2:4] if len(data.split(',')) > 3 else [0, 1]
         if int(bounds[0]) < int(bounds[1]):
-            print(data)
-            self.SA.write_buffer(str(data))
+            print('Data: ', data)
+            print('Read: ', self.readSerialPort())
+            self.SA.write_buffer(str(data) + '\n')
         else:
             print('FAIL:', data)
             
     def readSerialPort(self):
-        pass
+        self.SA.read_buffer()
+        
+        return self.SA.data.decode('utf-8')
         
 if __name__ == '__main__':
     try:

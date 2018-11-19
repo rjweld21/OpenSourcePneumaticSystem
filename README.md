@@ -39,6 +39,7 @@ version and for 64-bit computers, download the x86-64 version.
 ```bash
 python
 ```
+
     1. If python session starts you have set it up correctly and are now done with this section.
     2. If command is not recognized try running "python3" instead in the terminal.
     3. If neither commands are recognized continue to next step.

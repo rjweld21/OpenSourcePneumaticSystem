@@ -38,11 +38,11 @@ version and for 64-bit computers, download the x86-64 version.
 2. Open Powershell or Command Terminal and type...
 ```bash
 python
-
- 
-    1. If python session starts you have set it up correctly and are now done with this section.
-    2. If command is not recognized try running "python3" instead in the terminal.
-    3. If neither commands are recognized continue to next step.
+```
+  
+1. If python session starts you have set it up correctly and are now done with this section.
+2. If command is not recognized try running "python3" instead in the terminal.
+3. If neither commands are recognized continue to next step.
 3. Follow the steps in [this StackOverflow post](https://stackoverflow.com/questions/3701646/how-to-add-to-the-pythonpath-in-windows/32609129#32609129) 
 for how to add Python to environment 
 variables. This will allow you to run python scripts from command line. *NOTE: This

@@ -2,8 +2,9 @@ import serial
 from time import sleep
 
 class SerialArduino(object):
-    def __init__(self, port='COM7', br=9600, timeout=0, virtual=0):
-        self.SA = serial.Serial(port, br, timeout=timeout, rtscts=0)
+    def __init__(self, port='COM7', br=9600, timeout=1, virtual=0):
+        self.SA = serial.Serial(port, br, timeout=timeout, rtscts=0,
+                                writeTimeout=3)
         self.old = b''
         self.data = b''
         self.virtual = virtual
@@ -19,9 +20,12 @@ class SerialArduino(object):
             print('No data written to serial.')
             return
             
-        print('Writing...')
-        self.SA.write(data)
-        print('Written!')
+        try:
+            self.SA.write(data)
+        except:
+            print('Write failed!')
+            print(data)
+            print()
 
     def read_buffer(self, byteLen=0, parse=True):
         if not byteLen:

@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 String data;
-char cData;
+char *cData;
 int mode=0; //0 - constant, 1 - pulse, 2 - ramp
 int SDAC, EDAC, MS;
 int charlen;
@@ -38,7 +38,12 @@ void loop() {
       //charlen = (int)strlen(data)
       data.toCharArray(cData, data.length());
 
-      sWrite("CHAR DATA", cData);
+      Serial.println("Char Data ");
+      for (int i=0; i<data.length(); i++)
+      {
+        Serial.print(&cData[i]);
+      }
+      //sWrite("CHAR DATA", cData);
       Serial.println("DATA");
       Serial.println(data);
       Serial.println(data.length());
@@ -48,8 +53,10 @@ void loop() {
       Serial.println("FIRST");
       Serial.println(token);
       
-      if (~(token == "PYSERIAL")) // Otherwise, exit
+      if (~(token == "PYSIG")) // Otherwise, exit
       {
+        Serial.println("Skipping...");
+        Serial.println(token);
         continue;
       }
       

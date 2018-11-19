@@ -13,7 +13,7 @@ from control.ArduinoSerial import SerialArduino, connectVirtualComs
 
 class PumpGUI(QWidget):
     def __init__(self, parent=None):
-        #os.system('start powershell')
+        os.system('start powershell')
         super(PumpGUI, self).__init__(parent)
         self.pump = PumpControl()
         self.initSerial()

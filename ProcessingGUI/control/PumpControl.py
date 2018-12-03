@@ -1,4 +1,5 @@
-
+from threading import Thread
+from time import sleep
 
 class PumpControl(object):
     def __init__(self):
@@ -50,6 +51,21 @@ class PumpControl(object):
         
     def serialSignalFormat(self, mode, params):
         params = ','.join(params)
-        serialData = 'PYSIG,%s,%s\n' % (mode, params)
+        serialData = 'PYSIG,%s,%s,\n' % (mode, params)
         
         return serialData
+        
+class PumpTimer(object):
+    def __init__(self, pumpGui, timer):
+        self.pumpGui = pumpGui
+        self.timer = timer
+        
+        t1 = Thread(target=self.startTimer)
+        t1.start()
+        
+    def startTimer(self):
+        while self.pumpGui.open:
+            sleep(self.timer)
+            self.pumpGui.readSerialPort()
+            if self.pumpGui.changed:
+                self.pumpGui.sendSerialData()

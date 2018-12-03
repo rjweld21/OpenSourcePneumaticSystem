@@ -1,27 +1,63 @@
 #include <string.h>
 #include <stdio.h>
 
+struct setting
+{
+  String mode="None";
+  int interval=0;
+  int low=0;
+  int high=0;
+  bool changed=false;
+};
+
+bool debug = true;
 String data;
-char *cData;
-int mode=0; //0 - constant, 1 - pulse, 2 - ramp
-int SDAC, EDAC, MS;
-int charlen;
-const char delim[2] = ",";
-char *token;
+char *cData, *i, *token;
+int mode=0, charlen; //0 - constant, 1 - pulse, 2 - ramp
+const char delim = ',';
+setting prevControl, control;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  Serial.println("HELLO");
 }
 
-void sWrite(String header, char *s)
+setting setupConstant(char *pyData, setting prevControl)
 {
-  Serial.println(header);
-  Serial.println(s);
+  setting params;
+  char *r;
+
+  Serial.println(pyData);
+
+  //Get token for PYSIG and "constant" indices
+  token = strtok_r(pyData, ",", &r);
+  Serial.println(token);
+  token = strtok_r(NULL, ",", &r);
+  
+  //Get voltage level for constant
+  token = strtok_r(NULL, ",", &r);
+  Serial.println(token);
+  
+  params.mode = "constant";
+  params.low = (int)*token;
+  
+
+  return params;
+}
+
+void checkChange(setting *currentSetting, setting *previousSetting)
+{
+  if (currentSetting->mode != previousSetting->mode || 
+      currentSetting->low != previousSetting->low ||
+      currentSetting->high != previousSetting->high ||
+      currentSetting->interval != previousSetting->interval)
+  {
+    currentSetting->changed = true;
+  }
 }
 
 void loop() {
+  
   
   // Enter loop to read serial buffer
   while (Serial.available() > 0)
@@ -29,53 +65,92 @@ void loop() {
     // Read line of serial data from computer
     data = Serial.readStringUntil('\n');
 
-    // Rewrite data back to buffer
-    //Serial.println(data);
-
     // If on last pass for reading...
     if (Serial.available() == 0)
     {
+      if (debug) {Serial.println("\n=");}
+      
       //charlen = (int)strlen(data)
-      data.toCharArray(cData, data.length());
+      char tempChar[data.length()];
+      data.toCharArray(tempChar, data.length());
+      cData = tempChar;
 
-      Serial.println("Char Data ");
-      for (int i=0; i<data.length(); i++)
-      {
-        Serial.print(&cData[i]);
-      }
-      //sWrite("CHAR DATA", cData);
-      Serial.println("DATA");
-      Serial.println(data);
-      Serial.println(data.length());
+      /* DATA FORMATS
+       * CONSTANT: PYSIG,constant,VOLT_LEVEL 
+       * PULSE:    PYSIG,pulse,VOLT_LOW,VOLT_HIGH,TIME_INTERVAL
+       * RAMP:     PYSIG,ramp,VOLT_LOW,VOLT_HIGH,TIME_INTERVAL
+      */
       
       // Confirm data has been sent by GUI python program
-      token = strtok(cData, delim);
-      Serial.println("FIRST");
-      Serial.println(token);
-      
-      if (~(token == "PYSIG")) // Otherwise, exit
+      token = strtok_r(cData, ",", &i);
+
+      // Check if current data is NOT from python GUI
+      if ((strcmp(token, "PYSIG")!=0))
       {
-        Serial.println("Skipping...");
-        Serial.println(token);
+        // FOR DEBUGGING
+        if (debug)
+        {
+          Serial.print("Skipping: ");
+          Serial.println(token);
+        }
+        // If NOT from python GUI, loop iteration is skipped
         continue;
       }
-      
-      token = strtok(NULL, delim);
-      Serial.println("SECOND");
-      Serial.println(token);
-      
-      if (token == "constant")
+
+      if (debug)
       {
-        Serial.println("constant");
+        Serial.print("FIRST: ");
+        Serial.println(token);
       }
-      else if (token == "pulse")
+
+      // Get second field within python data (mode)
+      token = strtok_r(NULL, ",", &i);
+
+      // Re-init control struct to reset fields to default
+      setting control;
+      if (strcmp(token, "constant")==0) //CONSTANT MODE PROCESSING
       {
-        Serial.println("pulse");
+        //Set struct mode and then set voltage level to struct low var
+        control.mode = "constant";
+        control.low = atoi(strtok_r(NULL, ",", &i)); //Gets constant voltage level to set
+      }
+      else if (strcmp(token, "pulse")==0) //PULSE MODE PROCESSING
+      {
+        //Set struct variables
+        control.mode = "pulse";
+        control.low = atoi(strtok_r(NULL, ",", &i)); //Gets VOLT_LOW
+        control.high = atoi(strtok_r(NULL, ",", &i)); //Gets VOLT_HIGH
+        control.interval = atoi(strtok_r(NULL, ",", &i)); //Gets TIME_INTERVAL
+      }
+      else if (strcmp(token, "ramp")==0) //RAMP MODE PROCESSING
+      {
+        //Set struct variables
+        control.mode = "ramp";
+        control.low = atoi(strtok_r(NULL, ",", &i)); //Gets VOLT_LOW
+        control.high = atoi(strtok_r(NULL, ",", &i)); //Gets VOLT_HIGH
+        control.interval = atoi(strtok_r(NULL, ",", &i)); //Gets TIME_INTERVAL
       }
       else
       {
-        Serial.println("ramp");
+        Serial.println("Unrecognized");
+        Serial.println(token);
+        continue;
       }
+
+      if (debug)
+      {
+        Serial.println("MODE: " + control.mode);
+        Serial.println("LOW: " + String(control.low));
+        Serial.println("HIGH: " + String(control.high));
+        Serial.println("MS: " + String(control.interval));
+      }
+
+      // Check if current control params and params from last iteration have changed
+      checkChange(&control, &prevControl);
+      Serial.println("CHANGED: " + String(control.changed));
+
+      // Set prevControl to current controls just before starting next iteration
+      prevControl = control;
     }
   }
 }

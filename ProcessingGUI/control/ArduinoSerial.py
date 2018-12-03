@@ -5,6 +5,10 @@ class SerialArduino(object):
     def __init__(self, port='COM7', br=9600, timeout=1, virtual=0):
         self.SA = serial.Serial(port, br, timeout=timeout, rtscts=0,
                                 writeTimeout=3)
+                                
+        self.SA.reset_input_buffer()
+        self.SA.reset_output_buffer()
+        
         self.old = b''
         self.data = b''
         self.virtual = virtual
@@ -41,7 +45,13 @@ class SerialArduino(object):
             self.old = b''
             return
             
-        parsed = self.data.decode('utf-8').split('\n')
+        try:
+            parsed = self.data.decode('utf-8').split('\n')
+        except:
+            print('FAILED ON:', self.data)
+            self.data = ''
+            parsed = ['Failed to read']
+            #raise TypeError('Could not parse data from Arduino.')
         self.data = '\n'.join(parsed[:-1]).encode('utf-8')
         self.old = parsed[-1].encode('utf-8')
         

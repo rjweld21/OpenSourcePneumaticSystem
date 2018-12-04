@@ -323,6 +323,8 @@ class PumpGUI(QWidget):
         
 if __name__ == '__main__':
     if not os.path.exists(CONFIG_FILE):
+        print('\n\nNo configuration file found, this is standard on first run or if config file cannot be found...\n')
+        print('Enter config data based on prompts...\n')
         params = [ARD_INDEX]
         help=['This is the COM port your Arduino UNO is listed as within '
                 'your computer\'s device manager.']

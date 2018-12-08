@@ -12,26 +12,31 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
 
 from control.ArduinoSerial import SerialArduino, connectVirtualComs
 
+# Inits config file path, Arduino port index, max DAC and max time interval
 CONFIG_FILE = os.path.join('content', 'ard.config')
 ARD_INDEX = 'ArduinoComPort'
 NUM_MAX = 255
 PERIOD_MAX = 1000
 
 class PumpGUI(QWidget):
+    # Graphic User Interface (GUI) which is used for controlling Arduino
     def __init__(self, parent=None):
-        self.open = True
-        self.changed = False
+        self.open = True # Bool for being open for timer
+        self.changed = False # For checking if data should be sent to Arduino
         
-        #os.system('start powershell')
+        # Don't really know what super is for but always have to do it
+            # with PyQt5 main windows
         super(PumpGUI, self).__init__(parent)
-        self.pump = PumpControl()
-        self.initSerial()
+        self.pump = PumpControl() # Set up pump controller
+        self.initSerial() # Initialize serial connection with Arduino
         
         # Create grid for main screen
         grid = QGridLayout()
         
+        # Mode buttons
         buttons = ['CONSTANT', 'PULSE', 'RAMP']
         
+        # Adds mode buttons to layout
         grid.addWidget(self.radioButtons(buttons, 'Signal Type'), 0, 0)
         
         # Create slider 1, tick interval and text value box (Starting DAC)
@@ -41,6 +46,7 @@ class PumpGUI(QWidget):
                                                       tickInterval=NUM_MAX/10,
                                                       max=NUM_MAX)
         self.sliderSDAC.setValue(self.pump.SDAC)
+        # When slider value changes, run updateSDAC
         self.sliderSDAC.valueChanged.connect(self.updateSDAC)
         lBoxSDAC, self.labelSDAC = self.createEditLabel(self.pump.SDAC, 
                                                         'Starting DAC',
@@ -53,6 +59,7 @@ class PumpGUI(QWidget):
                                                       tickInterval=NUM_MAX/10,
                                                       max=NUM_MAX)
         self.sliderEDAC.setValue(self.pump.EDAC)
+        # When slider value changes, run updateEDAC
         self.sliderEDAC.valueChanged.connect(self.updateEDAC)
         lBoxEDAC, self.labelEDAC = self.createEditLabel(self.pump.EDAC, 
                                                         'Ending DAC',
@@ -65,6 +72,7 @@ class PumpGUI(QWidget):
                                                   tickInterval=PERIOD_MAX/10,
                                                   max=PERIOD_MAX)
         self.sliderMS.setValue(self.pump.MS)
+        # When slider value changes, run updateMS
         self.sliderMS.valueChanged.connect(self.updateMS)
         lBoxMS, self.labelMS = self.createEditLabel(self.pump.MS, 
                                                     'ms Interval',
@@ -93,23 +101,38 @@ class PumpGUI(QWidget):
         self.setWindowTitle('PumpGUI')
         self.resize(400, 300)
         
+        # Set as if data has changes so Arduino is given initial output
         self.changed = True
         
     def createSlider(self, sliderName='Slider',
                            tickInterval=10,
                            tickStep=1,
                            min=0, max=50):
-        groupBox = QGroupBox(sliderName)
+        """
+            Function to create slider on main window
+            
+            INPUTS
+                :sliderName: String of what label to put on slider
+                :tickInterval: Interval of how much hotkey should increment by
+                :tickStep: What is the minimum amount of change that can occur on slider
+                :min: Min value of slider
+                :max: Max value of slider
+                
+            OUTPUTS
+                :groupBox: PyQt5 object for bbox of slider and contents
+                :slider: Resulting set slider object
+        """
+        groupBox = QGroupBox(sliderName) # Create container for GUI objects
         
-        slider = QSlider(Qt.Horizontal)
-        slider.setFocusPolicy(Qt.StrongFocus)
-        slider.setTickPosition(QSlider.TicksBothSides)
-        slider.setTickInterval(tickInterval)
-        slider.setSingleStep(tickStep)
-        slider.setMinimum(min)
-        slider.setMaximum(max)
+        slider = QSlider(Qt.Horizontal) # Create slider
+        slider.setFocusPolicy(Qt.StrongFocus) # Set style
+        slider.setTickPosition(QSlider.TicksBothSides) # Set functionality
+        slider.setTickInterval(tickInterval) # Set tick interval
+        slider.setSingleStep(tickStep) # Set min step
+        slider.setMinimum(min) # Set min value
+        slider.setMaximum(max) # Set max balue
         
-        vbox=QVBoxLayout()
+        vbox=QVBoxLayout() # Put slider in bbox then add to container
         vbox.addWidget(slider)
         vbox.addStretch(1)
         groupBox.setLayout(vbox)
@@ -117,6 +140,18 @@ class PumpGUI(QWidget):
         return groupBox, slider
         
     def radioButtons(self, buttonNames, groupTitle='Radio Buttons'):
+        """
+            Function to iterate through list of buttons and set them up
+                on GUI
+            
+            INPUTS
+                :buttonNames: List of strings to name each radio button
+                :groupTitle: String to label box of buttons
+                
+            OUTPUT
+                :groupBox: PyQt5 container of buttons and associated objects
+        """
+        # Make sure buttonNames is list
         assert type(buttonNames) == list
         
         # Create group for radio buttons
@@ -126,7 +161,7 @@ class PumpGUI(QWidget):
         # Create list for radio button variables
         self.buttons = []
         
-        # Create radio buttons
+        # Create radio buttons and add to bbox
         for name in buttonNames:
             self.buttons.append(QRadioButton(name))
             self.buttons[-1].toggled.connect(self.changeMode)
@@ -139,15 +174,30 @@ class PumpGUI(QWidget):
         return groupBox
         
     def createEditLabel(self, text, labelTitle='', center=True, changeFunc=None):
+        """
+            Function to create text entry boxes
+            
+            INPUTS
+                :text: Default value to put in entry box
+                :labelTitle: String label to associate with box on GUI
+                :center: Bool of whether to center in bbox or not
+                :changeFunc: Function to connect entry box to. If value in
+                    entry box is changed, this function is run
+                    
+            OUTPUTS
+                :groupBox: PyQt5 container for entry box and contents
+                :label: Resulting entry box object
+        """
+        # Create entry box object
         label = QLineEdit()
-        label.setText(str(text))
-        if not changeFunc == None:
+        label.setText(str(text)) # Set text in entry box
+        if not changeFunc == None: #If function input, connect to box
             label.textChanged.connect(changeFunc)
         
-        if center:
+        if center: # Center box if chosen to
             label.setAlignment(Qt.AlignCenter)
             
-        groupBox = QGroupBox(labelTitle)
+        groupBox = QGroupBox(labelTitle) #Set up bbox and add entry box
         vbox = QVBoxLayout()
         vbox.addWidget(label)
         vbox.addStretch()
@@ -157,72 +207,116 @@ class PumpGUI(QWidget):
         return groupBox, label
     
     def changeMode(self):
+        """
+            Function for changing mode if user selected new radio box
+        """
+        # Init name just in case no buttons are detected to be checked
+            # This case shouldn't happen but is just for error catching
         name = None
-        for b in self.buttons:
+        for b in self.buttons: # Iterate through radio buttons
+            # Find which button is checked, set name then break
             if b.isChecked():
                 name = b.text()
                 break
                 
+        # Tell pump controller to update the mode
         self.pump.updateMode(name)
         
+        # Set changed state to update serial buffer
         self.changed = True
-        
-        #self.sendSerialData()
         
     def updateSDAC(self):
+        """
+            Function for changing SDAC if start DAC slider is moved
+        """
+        # Get slider value
         start = self.sliderSDAC.value()
         
+        # Set value to entry box value
         self.labelSDAC.setText(str(start))
         
+        # Check if start DAC is larger than end DAC
         if start > self.sliderEDAC.value():
+            # If so, change end DAC value to above start value
             self.sliderEDAC.setValue(start+self.intEDAC)
         
+        # Update pump controller with new start DAC
         self.pump.updateParams(start=start)
         
+        # Set changed state to update serial buffer
         self.changed = True
         
-        #self.sendSerialData()
-        
     def textSDAC(self):
+        """
+            Function for changing SDAC if entry box is edited
+        """
+        # If no contents in entry box, set to 0
         if not len(self.labelSDAC.text()):
             self.labelSDAC.setText('0')
             
         try:
+            # Try to get box value as int
             start = int(self.labelSDAC.text())
+            if start < 0: # If entered value lower than 0, reset to 0
+                self.labelSDAC.setText('0')
+                start = 0
         except:
+            # If cannot be converted (aka if non-numerical character was entered)
+                # delete last character and return
             self.labelSDAC.setText((' ' + self.labelSDAC.text())[:-1].replace(' ', ''))
             return
             
+        # Check if start value is larger than max slider value
         if start > NUM_MAX:
+            # If so, set to max slider value
             start = NUM_MAX
             
+        # Update slider value with text value then run above function
         self.sliderSDAC.setValue(start)
         self.updateSDAC()
         
     def updateEDAC(self):
+        """
+            Function for changing EDAC if end DAC slider is moved
+        """
+        # Get slider value
         end = self.sliderEDAC.value()
         
+        # Set entry box value to value of slider
         self.labelEDAC.setText(str(end))
         
+        # If end slider value is less than start slider value
         if end < self.sliderSDAC.value():
-            self.sliderSDAC.setValue(end+self.intSDAC)
+            # Reset start slider value to lower than ending slider value
+            self.sliderSDAC.setValue(end-self.intSDAC)
             
+        # Update pump controller params
         self.pump.updateParams(end=end)
         
+        # Change state so serial buffer gets updated
         self.changed = True
         
-        #self.sendSerialData()
-        
     def textEDAC(self):
+        """
+            Function for changing EDAC if entry box is edited
+        """
+        # If no contents in entry box, set to 0
         if not len(self.labelEDAC.text()):
             self.labelEDAC.setText('0')
             
         try:
+            # Try to get box value as int
             end = int(self.labelEDAC.text())
+            if end < 0: # If entered value lower than 0, reset to 0
+                self.labelEDAC.setText('0')
+                end = 0
         except:
+            # If cannot be converted (aka if non-numerical character was entered)
+                # delete last character and return
             self.labelEDAC.setText((' ' + self.labelEDAC.text())[:-1].replace(' ', ''))
             return
             
+        # Check if end value is larger than max slider value
         if end > NUM_MAX:
             end = NUM_MAX
             
@@ -257,29 +351,43 @@ class PumpGUI(QWidget):
         self.updateMS()
         
     def incrementSDAC(self):
+        # Function for hotkey incrementing
         self.sliderSDAC.setValue(self.sliderSDAC.value() + self.intSDAC)
         
     def decrementSDAC(self):
+        # Function for hotkey decrementing
         self.sliderSDAC.setValue(self.sliderSDAC.value() - self.intSDAC)
         
     def incrementEDAC(self):
+        # Function for hotkey incrementing
         self.sliderEDAC.setValue(self.sliderEDAC.value() + self.intEDAC)
         
     def decrementEDAC(self):
+        # Function for hotkey decrementing
         self.sliderEDAC.setValue(self.sliderEDAC.value() - self.intEDAC)
         
     def incrementMS(self):
+        # Function for hotkey incrementing
         self.sliderMS.setValue(self.sliderMS.value() + self.intMS)
         
     def decrementMS(self):
+        # Function for hotkey decrementing
         self.sliderMS.setValue(self.sliderMS.value() - self.intMS)
         
     def initSerial(self):
+        """
+            Function for initializing serial communication
+        """
         try:
+            # Tries to connect to arduino COM port
+                # from config data
             ardCom = config_data[ARD_INDEX]
             SA = SerialArduino(port=ardCom)
             
         except Exception as e:
+            # If cannot connect to arduino, raises custom error
+                # Connection errors may be from no arduino connected
+                    # or incorrect com port to connect to
             print('Exception raised: %s' % type(e))
             print('Exception desc: %s' % e)
             raise RuntimeError('No arduino detected on %s' % ardCom)
@@ -288,41 +396,67 @@ class PumpGUI(QWidget):
             
             [SA, _] = connectVirtualComs(timeout=5)
             
+        # Delay a second to allow Serial to fully initialize
         sleep(1)
-        self.SA = SA
+        self.SA = SA # Set to class variable
         print('COM connection initialized!')
         
     def sendSerialData(self):
+        """
+            Function for sending pump control parameters to serial buffer
+        """
+        # Gives user output
         print('=' * 40, '\nSENDING TO ARDUINO...')
+        # Get data to output
         data = self.pump.getSerialData()
+        # Gets SDAC and EDAC
         bounds = data.split(',')[2:4] if len(data.split(',')) > 4 else [0, 1]
-        if int(bounds[0]) < int(bounds[1]):
+        
+        # Checks that EDAC is not smaller than SDAC and vice versa
+        if int(bounds[0]) <= int(bounds[1]):
+            # User output and writes buffer
             print('Data: ', data)
             self.SA.write_buffer(str(data) + '\n')
             
-        else:
+        else: # If bounds error, outputs data
+            print(bounds)
             print('FAILED:', data)
-            
+        
+        # Resets state to skip buffer write until next GUI update
         self.changed = False
-            
-        #print(bounds)
+        
             
     def readSerialPort(self):
+        """
+            Function to read serial buffer port of data Arduino has 
+                sent back to Python
+        """
+        # Read buffer
         self.SA.read_buffer()
         
         try:
+            # Decode from bytes to string
             data = self.SA.data.decode('utf-8', 'ignore')
+            
+            # If data is present, output to user
             if len(data):
                 print('READING FROM ARDUINO...')
                 print('Read: ', data + '\n')
         except:
+            # If decoding fails, output to user
             print('Failed to read!')
         
     def closeEvent(self, pos1=None, pos2=None):
+        # If user closes GUI, update bool for timer to stop
         self.open=False
         
 if __name__ == '__main__':
+    # If PumpGUI.py is run (rather than imported to another script)...
+    
+    # Check if config file exists
     if not os.path.exists(CONFIG_FILE):
+        # If no config file, output to user and start process to create
+            # config file
         print('\n\nNo configuration file found, this is standard on first run or if config file cannot be found...\n')
         print('Enter config data based on prompts...\n')
         params = [ARD_INDEX]
@@ -330,18 +464,25 @@ if __name__ == '__main__':
                 'your computer\'s device manager.']
         config.setup(filename=CONFIG_FILE, config_params=params,
                         help=help)
-    
+    # Once config file exists, get dictionary of contents
     config_data = config.load_config(CONFIG_FILE)
     
+    # Timer sampling rate
     UPDATE_RATE_HZ = 10
     UPDATE_RATE = 1/UPDATE_RATE_HZ
     
     try:
+        # Send system arguments to app
         app = QApplication(sys.argv)
+        # Set dock icon for app
         app.setWindowIcon(QIcon(os.path.join('content', 'icon.png')))
+        # Open app
         gui = PumpGUI()
+        # Create serial writing timer
         serialTimer = PumpTimer(gui, timer=UPDATE_RATE)
+        # Show app
         gui.show()
+        # idk what this does but what I do know is that it's necessary
         sys.exit(app.exec_())
     except Exception as e:
         print(e)

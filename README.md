@@ -19,6 +19,8 @@ Other Python 3 subversions (any 3.x.x) will most likely work but have not been t
 3. [Arduino UNO setup](#arduino-uno-setup)
 4. [Repository setup](#repository-setup)
 5. [Schematic for electronics connectivity and setup](#schematics)
+6. [GUI and System Usage](#gui-and-system-usage)
+7. [Troubleshooting](#troubleshooting)
 
 ## Bill of materials
 The complete Bill-of-Materials for this [Arduino](https://www.arduino.cc/)-based 
@@ -73,7 +75,7 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
 2. Click the large green "Clone or Download" button
 3. Click "Download ZIP"
 4. Within file explorer, navigate to where repo ZIP file was downloaded and extract its contents to your desired file location
-5. Install python libraries (steps 4 - 6 of [Python 3.6.3 setup](#python-3.6.3-setup)
+5. Install python libraries (steps 4 - 6 of [Python 3.6.3 setup](#python-3.6.3-setup))
 6. Open command prompt and navigate to "ProcessingGUI" directory of repo
 7. Run ```python3 PumpGUI.py```
     1. Alternatively, with Windows, double clicking the "run.bat" file within the "ProcessingGUI" directory will launch the python script
@@ -83,3 +85,77 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
         
 
 ## Schematics
+
+## GUI and System Usage
+#### Once all previous sections are complete, follow the below steps for using this system 
+
+##### GUI Usage
+1. Easy method
+    1. Navigate to ProcessingGUI directory with File Explorer 
+    2. Double click "run.bat" file
+        - This should open a command prompt which runs the necessary command to run the 
+        python script.
+        - If this fails saying python3 command does not exist, open "run.bat" with a 
+        text editor, like Notepad, and change "python3" to "python".
+        - If this fails as well, you will need to ensure Python 3 is set up correctly 
+        and callable from command line.
+        
+2. More complicated method in case easy method does not work 
+    1. Open a command or powershell terminal 
+    2. Navigate to the directory with PumpGUI.py within it 
+        - You can use `cd [directory_to_go_to]` to enter the next folder in a path or `cd ..` to 
+        go back a folder
+        - You can use `dir` or `ls` to check the contents of the current folder. If PumpGUI.py is 
+        within the list, you are in the right directory.
+    3. Enter `python3 PumpGUI.py` or `python PumpGUI.py` depending on which python call works 
+    4. Upon first run, configuration settings will need to be entered 
+        - Currently, there is only one field to be filled out and that is for the Arduino COM port 
+        - With your Arduino UNO plugged in, open Device Manager
+        - Within Device Manager, find "Ports (COM & LPT)" dropdown list.
+        - Expand the list and find the COM port associated with your Arduino UNO 
+        - Enter this COM port when prompted by python. For example, if your Arduino is 
+        at COM7, enter "COM7" when asked by python.
+    
+## Troubleshooting
+#### This section includes possible problems anticipated by the developers that users 
+may run into but not know how to solve
+
+1. PROBLEM: When starting up Python GUI, serial port cannot be connected to Arduino.
+    - DIAGNOSE: Ensure Arduino is connected to computer.
+        1. Go into Device Manager 
+        2. Find Arduino UNO in "Ports (COM & LPT)"
+        3. SOLUTION: If Arduino is not found to be recognized but is plugged in, unplug and 
+        plug back in. If problem still occurs, Google will be your friend for finding solutions 
+        to this problem. Sometimes Arduinos get corrupted when being programmed and essentially 
+        become useless. Replacing the Arduino may be the solution but solutions on Google should 
+        be tried first to avoid buying another Arduino if it is fixable.
+    - DIAGNOSE: Ensure correct COM port is set in Python config file.
+        1. Go to "content" folder within ProcessigGUI directory
+        2. If config file has been set up there will be a file named "ard.config" or just "ard" 
+         (depending on if you have File Explorer set up to show file extensions). Either delete this
+         file or rename it to something else.
+        3. Re-run the GUI (following instructions under [GUI Usage](#gui-usage))
+        4. SOLUTION: You will be prompted to input config information, enter COM port 
+        associated with your Arduino found within Device Manager
+        
+1. PROBLEM: Python language is saying there are syntax errors
+    - DIAGNOSE: Ensure a Python 3 subversion is used to run PumpGUI.py
+        1. Open command prompt or powershell
+        2. Enter `python` or `python3` based off of which command you have been using to run python
+        3. If python terminal runs, check that it is running on a Python 3 version
+            - Version can be found in the place that is outlined in red in the picture below.
+        4. SOLUTION: If command is not recognized or Python 2 version runs, ensure that Python 3 is installed
+        and set up command to run Python 3. Google will help a lot here. Really the hardest part with Python is
+        the setup.
+![Python Version Check](PicsVids/PythonCheck.PNG)
+    - DIAGNOSE: If Python 3 version is confirmed to run with steps above, you may need to install
+    required packages with pip connected to Python 3.
+        1. Open command prompt or powershell
+        2. Enter `pip -V` or `pip3 -V` based off of which command you have been using to install packages.
+        3. SOLUTION: If first resulting path is not connected to Python 3, Google will need to be used to figure out how to
+        connect pip command to correct Python version.
+        4. SOLUTION: If pip is connected to correct Python version, navigate to OpenSourcePneumaticSystem 
+        directory and double click "install_packages.bat". If error is shown saying pip3 is not recognized, open
+        "install_packages.bat" with Notepad and change "pip3" to "pip", save and re-run.
+    
+         

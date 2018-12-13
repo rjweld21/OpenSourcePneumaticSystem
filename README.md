@@ -20,13 +20,15 @@ Other Python 3 subversions (any 3.x.x) will most likely work but have not been t
 4. [Repository setup](#repository-setup)
 5. [Schematic for electronics connectivity and setup](#schematics)
 6. [GUI and System Usage](#gui-and-system-usage)
-7. [Troubleshooting](#troubleshooting)
+7. [Possible future work](#possible-future-work)
+8. [Troubleshooting](#troubleshooting)
+9. [Additional Documentation](#additional-documentation)
 
 ## Bill of materials
 The complete Bill-of-Materials for this [Arduino](https://www.arduino.cc/)-based 
 system are provided in the document `Pneumatic System Bill of Materials` located 
-in this repository. Currently, required items are roughly $500 and the grand 
-total for all recommended items (including the required items) is roughly $1,200.
+in the `docs` directory of this repository. Currently, required items are roughly $500 and the grand 
+total for all recommended items (including the required items) is roughly $1,100.
 
 ## Python 3.6.3 setup
 1. Download the [Python 3.6.3](https://www.python.org/downloads/release/python-363/) 
@@ -118,10 +120,19 @@ configuration. The schematic can be seen below.
         - Expand the list and find the COM port associated with your Arduino UNO 
         - Enter this COM port when prompted by python. For example, if your Arduino is 
         at COM7, enter "COM7" when asked by python.
-    
+
+## Possible Future Work
+#### Areas for advancement which can be created into future ECE consultant projects 
+1. Pressure feedback signals and control system
+    - The digitial pressure gauge used in this project has analog feedback wires. 
+    These wires can be used to give feedback about the actual pressure output 
+    to the Arduino and a PID controller can be implemented into the Arduino 
+    firmware. There are PID libraries for Arduino so this aspect should not be 
+    terribly hard if you know how PID controllers work.
+2. Embed circuit into PCB
+    - Considering the circuit for this project has already been created
 ## Troubleshooting
-#### This section includes possible problems anticipated by the developers that users 
-may run into but not know how to solve
+#### This section includes possible problems anticipated by the developers that users may run into but not know how to solve
 
 1. PROBLEM: When starting up Python GUI, serial port cannot be connected to Arduino.
     - DIAGNOSE: Ensure Arduino is connected to computer.
@@ -129,7 +140,7 @@ may run into but not know how to solve
         2. Find Arduino UNO in "Ports (COM & LPT)"
         3. SOLUTION: If Arduino is not found to be recognized but is plugged in, unplug and 
         plug back in. If problem still occurs, Google will be your friend for finding solutions 
-        to this problem. Sometimes Arduinos get corrupted when being programmed and essentially 
+        to this problem. On very rare occasions, Arduinos get corrupted when being programmed and essentially 
         become useless. Replacing the Arduino may be the solution but solutions on Google should 
         be tried first to avoid buying another Arduino if it is fixable.
     - DIAGNOSE: Ensure correct COM port is set in Python config file.
@@ -161,4 +172,8 @@ may run into but not know how to solve
         directory and double click "install_packages.bat". If error is shown saying pip3 is not recognized, open
         "install_packages.bat" with Notepad and change "pip3" to "pip", save and re-run.
     
-         
+# Additional Documentation
+Additional documentation that may be needed for the setup, troubleshooting or further 
+development of this project can be found within the [docs](docs/) directory. Here, 
+some data sheets can be found along with the bill of materials and the Fall 2018 
+presentation done for this project.

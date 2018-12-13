@@ -59,9 +59,19 @@ C:\Users\YOURUSER\AppData\Local\Programs\Python\Python36*
 5. Navigate to the root of this repo within the command terminal *NOTE: You will need to follow download instructions in [repository setup](#repository-setup) section before this is possible.*
     1. This can be done using ```cd [NextDirectoryName]``` to move to the next folder or ```cd ..``` to move back a folder
     2. Likewise, you can copy the repo root directory from the file explorer and paste to ```cd [PastedRepoPath]```
-6. Use pip or pip3, whichever command worked from step 4 and run...
-    1. ```pip3 install -r requirements.txt``` in command prompt
-    
+6. To install the required packages there are two ways this can be done...
+    - Easier method
+        - Double click [install_packages.bat](install_packages.bat)
+            1. Command line should open up and run command for installing packages
+        - If previous step did not work, open the file with notepad
+            1. Change `pip3` to `pip`
+            2. Save the file then double click it again.
+        - If both methods failed, move on to harder method below
+    - Harder method incase easier method fails
+        - Use pip or pip3, whichever command worked from step 4 and run...
+            1. ```pip3 install -r requirements.txt``` in command prompt
+7. The python setup should only have to be done once per computer using the system. 
+
 ## Arduino UNO setup
 1. Download the latest version of Arduino for your OS from [https://www.arduino.cc/en/Main/Software](https://www.arduino.cc/en/Main/Software). 
 1. Connect Arduino UNO to your computer via USB connection and open Arduino IDE.
@@ -75,7 +85,21 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
 ## Repository setup
 1. Navigate to [this README's repo](https://github.com/rjweld21/OpenSourcePneumaticSystem)
 2. Click the large green "Clone or Download" button
-3. Click "Download ZIP"
+3. Click...
+    - If you only plan on using this system, press "Download ZIP"
+    - If you plan on making changes and further developing system...
+        1. Copy SSH link
+        2. Download Git
+        3. Open Git Bash
+        4. Navigate to directory where you want to download repository
+        5. Enter `git clone [COPIED LINK]`
+        6. Files should now be copied onto your computer
+            - If you are unfamiliar with git, please look up general usage 
+            before trying to make changes to the repo. Git is a great 
+            tool but can be rather confusing at times. General usage is 
+            easy to understand but git's lack of error details can make 
+            it hard.
+        7. Continue to step 5.
 4. Within file explorer, navigate to where repo ZIP file was downloaded and extract its contents to your desired file location
 5. Install python libraries (steps 4 - 6 of [Python 3.6.3 setup](#python-3.6.3-setup))
 6. Open command prompt and navigate to "ProcessingGUI" directory of repo
@@ -84,7 +108,6 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
     2. If ```python3``` does not work for you, you will need to right-click and open the "run.bat" file with notepad, change "python3" to "python"
     on the first line, save the file then re-run the batch script
         - If ```python3``` does not work for you but ```python``` does, the original "run.bat" will simply open and close the command prompt
-        
 
 ## Schematics
 
@@ -101,6 +124,7 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
         text editor, like Notepad, and change "python3" to "python".
         - If this fails as well, you will need to ensure Python 3 is set up correctly 
         and callable from command line.
+    3. If command line opens and does not return error, continue to step 3 below. 
         
 2. More complicated method in case easy method does not work 
     1. Open a command or powershell terminal 
@@ -110,13 +134,21 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
         - You can use `dir` or `ls` to check the contents of the current folder. If PumpGUI.py is 
         within the list, you are in the right directory.
     3. Enter `python3 PumpGUI.py` or `python PumpGUI.py` depending on which python call works 
-    4. Upon first run, configuration settings will need to be entered 
+3. Upon first run, configuration settings will need to be entered 
         - Currently, there is only one field to be filled out and that is for the Arduino COM port 
         - With your Arduino UNO plugged in, open Device Manager
         - Within Device Manager, find "Ports (COM & LPT)" dropdown list.
         - Expand the list and find the COM port associated with your Arduino UNO 
         - Enter this COM port when prompted by python. For example, if your Arduino is 
-        at COM7, enter "COM7" when asked by python.
+        at COM7, enter "COM7" when asked by python. See example below.
+![COM Setup](PicsVids/ConfigSetup.PNG)
+4. NOTE 1: If command line is closed, GUI will close as well so keep command line open 
+for as long as you intend on using GUI.
+5. NOTE 2: As long as Arduino has power, it will continue to output same signal 
+for last recieved data. 
+6. NOTE 3: If feedback signals are being sent to Arduino (which as of Fall 2018 
+they are not) do NOT poweroff Arduino before powering down rest of system. This 
+could break your Arduino.
 
 ## Possible Future Work
 #### Areas for advancement which can be created into future ECE consultant projects 
@@ -127,7 +159,27 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
     firmware. There are PID libraries for Arduino so this aspect should not be 
     terribly hard if you know how PID controllers work.
 2. Embed circuit into PCB
-    - Considering the circuit for this project has already been created
+    - Considering the circuit for this project has already been created, creating 
+    a PCB layout for the circuit would not be too hard. This part should be done 
+    as early as possible in the semester so designs can be handed into the tech 
+    office and the boards can be recieved in a timely mannor. 
+    - Consultants should ensure that they leave space and create through-holes 
+    for prototyping advancements for the circuit. 
+    - Arduino UNO gives an advantage here as well since the ATMega chip can be taken 
+    off of the board and plugged into the PCB. An adapter should be used in this 
+    case on the board for plugging in the ATMega chip rather than soldering it 
+    directly to the board.
+        - If this is done, JTAG pins should also be created on the board for 
+        easier programming of the chip and less chance of the chip breaking 
+        while swapping it between the PCB and Arduino UNO dev board.
+3. 3-D Printed Enclosure
+    - This could be done by a MechE student who works with the ECE students 
+    to understand the specs required of the enclosure or just an ECE student 
+    who has knowledge/wants to learn how to 3-D print.
+    - This step should be done AFTER a PCB is created for the system
+    - This would clean up the wires and make the circuit more durable and 
+    less likely to harm the BME users. 
+    
 ## Troubleshooting
 #### This section includes possible problems anticipated by the developers that users may run into but not know how to solve
 

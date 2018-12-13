@@ -5,7 +5,7 @@ Developed and documented by R.J. Weld and Kishan Patel
 
 ## Overview
 This is an open-source pneumatic control system utilizing an Arduino UNO and the 
-Python 3 programming language. Python is used for GUI control which sends signals 
+Python 3 programming language. Python is used for graphic user interface, GUI, control which sends signals 
 to the Arduino via serial port. Arduino reads these signals and outputs accordingly 
 for the transducer.
 

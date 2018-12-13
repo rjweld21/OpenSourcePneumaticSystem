@@ -85,7 +85,10 @@ On Windows, the correct COM port can be determined by locating `Arduino Uno` und
         
 
 ## Schematics
-
+The Omega Miniature I/P transducer (Model No. IP610-030) is rated for 4-20 mA of current. According to the datasheet, the transducer represents 290
+\omega of impedance, thus we need 5.8 V maximum. The arduino genuino uno cannot produce this voltage, and thus an external power
+supply is used to supply it. The transducer is hooked up in series, along with a current limiting resistor, in a low-side switch
+configuration. The schematic can be seen below.
 ## GUI and System Usage
 #### Once all previous sections are complete, follow the below steps for using this system 
 

@@ -114,7 +114,7 @@ The Omega Miniature I/P transducer (Model No. IP610-030) is rated for 4-20 mA of
 \omega of impedance, thus we need 5.8 V maximum. The arduino genuino uno cannot produce this voltage, and thus an external power
 supply is used to supply it. The transducer is hooked up in series, along with a current limiting resistor, in a low-side switch
 configuration. The schematic can be seen below.
-![Overall System Schematic](PicsVids/system_schematic)
+![Overall System Schematic](PicsVids/system_schematic.png)
 
 It is imperative that the datasheet of the transistor (2n7000) is consulted, in order to make sure that it is hooked up properly.
 The source of the NMOS should be hooked to ground, the gate should be connected to the output of the arduino, and the drain should
@@ -131,7 +131,7 @@ process of how to do this. Note: Please ensure that nothing is plugged in when h
 
 In addition, the following is an example of the breadboard layout.
 
-![Breadboarded System Schematic](PicsVids/breadboard_schematic)
+![Breadboarded System Schematic](PicsVids/breadboard_schematic.jpg)
 
 ## GUI and System Usage
 #### Once all previous sections are complete, follow the below steps for using this system 

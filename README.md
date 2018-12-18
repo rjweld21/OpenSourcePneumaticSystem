@@ -171,6 +171,38 @@ In addition, the following is an example of the breadboard layout.
         - Enter this COM port when prompted by python. For example, if your Arduino is 
         at COM7, enter "COM7" when asked by python. See example below.
 ![COM Setup](PicsVids/ConfigSetup.PNG)
+4. Upon GUI popping up, default state will be in constant mode with 0 DAC output
+5. Modes include:
+    - Constant
+        - Constant output
+        - Output is determined by Starting DAC slider
+        - MS interval slider is ignored as well
+    - Pulse
+        - Output varies between two levels
+        - Lower level is determined by starting DAC
+        - Higher level is determined by ending DAC
+        - Interval at which they change is indicated by MS slider in milliseconds
+    - Ramp
+        - Output incrementally goes from one level to the next
+        - Lower level is determined by starting DAC
+        - Higher level is determined by ending DAC
+        - Interval at which output 'steps' up is determined by MS slider in milliseconds
+        - 'Step' interval 2 DAC
+6. Keyboard Shortcuts
+    - `W` increments starting DAC value
+    - `Q` decrements starting DAC value
+    - `S` increments ending DAC value
+    - `A` decrements ending DAC value
+    - `X` increments millisecond interval value
+    - `Z` decrements millisecond interval value
+6. Further configuration
+    - If you want to edit some sliders in GUI, or need to reset Arduino COM Port...
+        - Go to "content" folder within "ProcessingGUI" folder.
+        - Find `ard.config` file or `ard` file.
+        - Open with a text editor like notepad
+        - From here you can change settings like max DAC and max MS interval
+        - Save and restart GUI to see changes
+        
 4. NOTE 1: If command line is closed, GUI will close as well so keep command line open 
 for as long as you intend on using GUI.
 5. NOTE 2: As long as Arduino has power, it will continue to output same signal 

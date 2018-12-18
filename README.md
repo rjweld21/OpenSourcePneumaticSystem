@@ -3,6 +3,17 @@
 
 Developed and documented by R.J. Weld and Kishan Patel
 
+## SAFETY NOTES
+1. This circuit is safe to use but should not be played with. Many wires have been taped down 
+and hidden to prevent accidents until a more secure and shielded design can be created.
+2. If alterations or repairs to loose components do need to happen...
+    - Ensure all power sources are unplugged before touching circuit
+    - Do not leave any open wires
+    - Do not plug wires into places not outlined in the schematics below
+3. The power source used for this system is 15V and can cause serious shock, 
+especially to users with wet hands who touch things they are not supposed to.
+4. With correct usage, the circuit used here will cause no harm.
+
 ## Overview
 This is an open-source pneumatic control system utilizing an Arduino UNO and the 
 Python 3 programming language. Python is used for graphic user interface, GUI, control which sends signals 

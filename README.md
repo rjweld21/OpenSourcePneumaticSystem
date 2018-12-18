@@ -30,19 +30,10 @@ system are provided in the document `Pneumatic System Bill of Materials` located
 in the `docs` directory of this repository. Currently, required items are roughly $500 and the grand 
 total for all recommended items (including the required items) is roughly $1,100.
 
-## Python 3.4.3 setup - Done for Windows XP in Dr. Galie's lab. Python 3.6.3 does not work for Windows XP
-1. Download [Python 3.4.3](https://www.python.org/ftp/python/3.4.3/python-3.4.3.msi)
-1. Run installer
-2. Install for all users then click next
-3. Keep default path then click next
-4. Under customize options scroll down to `add python.exe to path`, change to "Entire feature will be installed on local hard drive"
-5. Click next and Python will start installing
-6. Open command prompt (hit ctrl+r then type `cmd` in run prompt)
-7. Type python and check version
-    - Version can be found as documented within [troubleshooting](#troubleshooting) section.
-
-
 ## Python 3.6.3 setup
+#### NOTE: IF GUI IS SHUT DOWN BUT ARDUINO IS STILL CONNECTED, LAST SETTING WILL
+CONTINUE TO BE RUN. ARDUINO MUST BE DISCONNECTED FROM COMPUTER!
+
 1. Download the [Python 3.6.3](https://www.python.org/downloads/release/python-363/) 
 executable installer for your computer. For 32-bit computers, download the x86 
 version and for 64-bit computers, download the x86-64 version.
@@ -85,10 +76,8 @@ C:\Users\YOURUSER\AppData\Local\Programs\Python\Python36*
 7. The python setup should only have to be done once per computer using the system. 
 
 ## Arduino UNO setup
-#### NOTE: Within Dr. Galie's lab, separate computer was used to program Arduino before put into system.
-- Lab computer ran on Windows XP. Although there may be an IDE version that runs on XP, it was easiest to 
-upload code with separate computer then unplug after programming was complete and plug into lab computer.
-- Once code is programmed to Arduino, it will stay there and operate as programmed after being turned off then on again.
+#### NOTE: IF GUI IS SHUT DOWN BUT ARDUINO IS STILL CONNECTED, LAST SETTING WILL
+CONTINUE TO BE RUN. ARDUINO MUST BE DISCONNECTED FROM COMPUTER!
 
 #### Downloading Arduino IDE and programming Arduino UNO
 1. Download the latest version of Arduino for your OS from [https://www.arduino.cc/en/Main/Software](https://www.arduino.cc/en/Main/Software). 

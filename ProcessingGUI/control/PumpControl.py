@@ -7,12 +7,14 @@ class PumpControl(object):
     def __init__(self):
         # Initializes class vars to default values and mode
         self.SDAC = 0
-        self.EDAC = 10
+        self.EDAC = 1
         self.MS = 5
         self.mode = self.constant
+        self.serialMode = 'constant'
         
     def updateMode(self, mode):
         # Changes class mode if changed on GUI, defaults to constant
+        self.serialMode = mode.lower()
         if mode.lower() == 'constant':
             self.mode = self.constant
         elif mode.lower() == 'pulse':
@@ -42,20 +44,20 @@ class PumpControl(object):
             If in constant mode, outputs...
             PYSIG,constant,VOLT_LOW,
         """
-        serialMode = 'constant'
+        self.serialMode = 'constant'
         params = [str(i) for i in [start]]
         
-        return self.serialSignalFormat(serialMode, params)
+        return self.serialSignalFormat(params)
         
     def pulse(self, start, end, ms):
         """
             If in pulse mode, outputs...
             PYSIG,pulse,VOLT_LOW,VOLT_HIGH,TIME_INTERVAL,
         """
-        serialMode = 'pulse'
+        self.serialMode = 'pulse'
         params = [str(i) for i in [start, end, ms]]
         
-        return self.serialSignalFormat(serialMode, params)
+        return self.serialSignalFormat(params)
         
     def ramp(self, start, end, ms):
         """
@@ -63,12 +65,12 @@ class PumpControl(object):
             PYSIG,ramp,VOLT_LOW,VOLT_HIGH,TIME_INTERVAL,
         """
         # Sets mode and converts params to strings in one list
-        serialMode = 'ramp'
+        self.serialMode = 'ramp'
         params = [str(i) for i in [start, end, ms]]
         
-        return self.serialSignalFormat(serialMode, params)
+        return self.serialSignalFormat(params)
         
-    def serialSignalFormat(self, mode, params):
+    def serialSignalFormat(self, params):
         """
             Function for formatting serial string based on inputs
             NOTE 1: Delimiter between fields MUST be comma or else 
@@ -85,6 +87,7 @@ class PumpControl(object):
                 be parsed or set on output.
         """
         params = ','.join(params)
+        mode = self.serialMode
         serialData = '\nPYSIG,%s,%s,' % (mode, params)
         
         return serialData

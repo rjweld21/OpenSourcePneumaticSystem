@@ -15,6 +15,8 @@ from control.ArduinoSerial import SerialArduino, connectVirtualComs
 # Inits config file path, Arduino port index, max DAC and max time interval
 CONFIG_FILE = os.path.join('content', 'ard.config')
 ARD_INDEX = 'ArduinoComPort'
+MAX_DAC_INDEX = 'MaxDAC'
+MS_INDEX = 'PeriodMax'
 NUM_MAX = 255
 PERIOD_MAX = 1000
 
@@ -29,6 +31,7 @@ class PumpGUI(QWidget):
         super(PumpGUI, self).__init__(parent)
         self.pump = PumpControl() # Set up pump controller
         self.initSerial() # Initialize serial connection with Arduino
+        self.userFeedback = {}
         
         # Create grid for main screen
         grid = QGridLayout()
@@ -78,7 +81,14 @@ class PumpGUI(QWidget):
                                                     'ms Interval',
                                                     changeFunc=self.textMS)
         
-        
+        # Create user feedback fields. Create field names then add their 
+            # static text. Any static text should include %s for string formatting
+        fields = ['ms']
+        staticText = ['Waveform Period: %s ms']
+        userFeedbackBox = self.userFeedbackTextBox(fields, staticText, 
+                                                center=True, 
+                                                boxName='User Feedback')
+                                                
         # Add keyboard shortcuts
         QShortcut(QKeySequence(Qt.Key_W), self).activated.connect(self.incrementSDAC)
         QShortcut(QKeySequence(Qt.Key_Q), self).activated.connect(self.decrementSDAC)
@@ -94,6 +104,7 @@ class PumpGUI(QWidget):
         grid.addWidget(lBoxEDAC, 2, 1)
         grid.addWidget(sBoxMS, 3, 0)
         grid.addWidget(lBoxMS, 3, 1)
+        grid.addWidget(userFeedbackBox, 4, 0)
         
         # Set grid
         self.setLayout(grid)
@@ -103,6 +114,7 @@ class PumpGUI(QWidget):
         
         # Set as if data has changes so Arduino is given initial output
         self.changed = True
+        self.updateMS()
         
     def createSlider(self, sliderName='Slider',
                            tickInterval=10,
@@ -205,7 +217,30 @@ class PumpGUI(QWidget):
         groupBox.setLayout(vbox)
         
         return groupBox, label
-    
+        
+    def userFeedbackTextBox(self, fields, staticText, center=True, 
+                                boxName='User Feedback'):
+        """
+            Function to create vertical box of user feedback fields
+            Currently only field used is for period output
+        """
+        self.userFeedback['text'] = {}
+        self.userFeedback['static'] = {}
+        
+        groupbox = QGroupBox(boxName)
+        vbox = QVBoxLayout()
+        
+        for i, f in enumerate(fields):
+            self.userFeedback['text'][f] = QLabel()
+            self.userFeedback['static'][f] = staticText[i]
+            self.userFeedback['text'][f].setText(staticText[i])
+            vbox.addWidget(self.userFeedback['text'][f])
+            
+        vbox.addStretch()
+        groupbox.setLayout(vbox)
+        
+        return groupbox
+        
     def changeMode(self):
         """
             Function for changing mode if user selected new radio box
@@ -221,6 +256,11 @@ class PumpGUI(QWidget):
                 
         # Tell pump controller to update the mode
         self.pump.updateMode(name)
+        
+        try:
+            self.updateMS()
+        except Exception as e:
+            print(e)
         
         # Set changed state to update serial buffer
         self.changed = True
@@ -245,6 +285,7 @@ class PumpGUI(QWidget):
         
         # Set changed state to update serial buffer
         self.changed = True
+        self.updateMS()
         
     def textSDAC(self):
         """
@@ -295,6 +336,7 @@ class PumpGUI(QWidget):
         
         # Change state so serial buffer gets updated
         self.changed = True
+        self.updateMS()
         
     def textEDAC(self):
         """
@@ -328,6 +370,8 @@ class PumpGUI(QWidget):
         
         self.labelMS.setText(str(ms))
         
+        self.updateFeedback(ms)
+                        
         self.pump.updateParams(ms=ms)
         
         self.changed = True
@@ -349,7 +393,26 @@ class PumpGUI(QWidget):
             
         self.sliderMS.setValue(ms)
         self.updateMS()
-        
+    
+    def updateFeedback(self, ms):
+        p = self.calcPeriod(ms, self.pump.serialMode)
+        self.userFeedback['text']['ms'].setText(
+                        self.userFeedback['static']['ms'] % p)
+                        
+    def calcPeriod(self, ms, mode):
+        if mode == 'pulse':
+            p = ms*2
+            if p < ms:
+                p = ms
+        elif mode == 'ramp':
+            # Divide by 2 because of step size set in arduino firmware
+            p = ((self.pump.EDAC-self.pump.SDAC)/2)*ms
+            if p < ms:
+                p = ms
+        else:
+            p = 'N/A'
+            
+        return str(p)
     def incrementSDAC(self):
         # Function for hotkey incrementing
         self.sliderSDAC.setValue(self.sliderSDAC.value() + self.intSDAC)
@@ -459,13 +522,16 @@ if __name__ == '__main__':
             # config file
         print('\n\nNo configuration file found, this is standard on first run or if config file cannot be found...\n')
         print('Enter config data based on prompts...\n')
-        params = [ARD_INDEX]
+        params = [ARD_INDEX, MAX_DAC_INDEX, MS_INDEX]
         help=['This is the COM port your Arduino UNO is listed as within '
-                'your computer\'s device manager.']
+                'your computer\'s device manager.', 'default', 'default']
+        defaults = [255, 10000]
         config.setup(filename=CONFIG_FILE, config_params=params,
-                        help=help)
+                        help=help, defaults=defaults)
     # Once config file exists, get dictionary of contents
     config_data = config.load_config(CONFIG_FILE)
+    NUM_MAX = config_data['MaxDAC']
+    PERIOD_MAX = config_data['PeriodMax']
     
     # Timer sampling rate
     UPDATE_RATE_HZ = 10
